@@ -1,24 +1,37 @@
-#![allow(dead_code)]
+#![allow(unused)]
 
-use std::io;
+use std::env;
+use std::fs::File;
+use std::io::{self, Read};
 
-pub struct Cpu {
-    pub regs: [u64; 32],
-    pub pc: u64,
-    pub code: Vec<u8>,
-}
-
-impl Cpu {
-    /// Read 32bit instruction from a memory
-    fn fetch(&self) -> u32 {
-        todo!()
-    }
-    /// Decode an instruction and execute it
-    fn execute(&mut self, inst: u32) {
-        todo!()
-    }
-}
+use rvemu_for_book::cpu::*;
 
 fn main() -> io::Result<()> {
-    unimplemented!()
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        panic!("Usage: riscv-emulator <filename>");
+    }
+
+    let mut file = File::open(&args[1])?;
+    let mut code = vec![];
+
+    // read code into file
+    file.read_to_end(&mut code);
+    // init cpu with code
+    let mut cpu = Cpu::new(code);
+
+    while cpu.pc < cpu.dram.len() as u64 {
+        // 1. Fetch
+        let inst = cpu.fetch();
+
+        // 2. PC update
+        cpu.pc += 4;
+
+        // 3. decode
+        // 4. execute
+        cpu.execute(inst)
+    }
+    cpu.dump_registers();
+
+    Ok(())
 }
