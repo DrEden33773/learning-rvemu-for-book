@@ -1,16 +1,16 @@
 use rvemu_for_book::{self, TestBenchTools};
 
 #[inline]
-fn run_rv_test_with_auto_clock<'a>(
+fn run_from_asm_snippet_with_auto_clock<'a>(
     code: &str,
     test_name: &str,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    run_rv_test(code, test_name, code.lines().count(), cmp_iter)
+    run_from_asm_snippet(code, test_name, code.lines().count(), cmp_iter)
 }
 
 #[inline]
-fn run_rv_test<'a>(
+fn run_from_asm_snippet<'a>(
     code: &str,
     test_name: &str,
     n_clock: usize,
@@ -40,7 +40,7 @@ fn test_add_addi() {
         add x31, x30, x29
     ";
     let cmp_iter = [("x31", 42)].into_iter();
-    run_rv_test_with_auto_clock(code, "test_add_addi", cmp_iter);
+    run_from_asm_snippet_with_auto_clock(code, "test_add_addi", cmp_iter);
 }
 
 #[test]
@@ -51,5 +51,5 @@ fn test_sub() {
         sub x31, x30, x29
     ";
     let cmp_iter = [("x31", 32)].into_iter();
-    run_rv_test_with_auto_clock(code, "test_sub", cmp_iter);
+    run_from_asm_snippet_with_auto_clock(code, "test_sub", cmp_iter);
 }
