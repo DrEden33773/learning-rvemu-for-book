@@ -12,6 +12,7 @@ use cpu::*;
 use param::*;
 
 pub fn run_with(mut file: File) -> io::Result<()> {
+    eprintln!();
     let mut code = vec![];
 
     // read code into file
