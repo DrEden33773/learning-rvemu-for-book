@@ -4,8 +4,8 @@ use crate::param::*;
 
 /// RISC-V CPU
 ///
-/// - Little-endian
-/// - 64bit
+/// - Little-Endian
+/// - 64-bit
 pub struct Cpu {
     pub gpr: [u64; 32],
     pub pc: u64,
@@ -71,8 +71,27 @@ impl Cpu {
         const SW: u32 = 0b010;
         const SD: u32 = 0b011;
 
-        const ADDI_OP: u32 = 0x13;
-        const ADD_OP: u32 = 0x33;
+        /* RType */
+        const R_TYPE_OP: u32 = 0b0110011;
+        const ADD_SUB: u32 = 0b000;
+        const SLL: u32 = 0b001;
+        const SLT: u32 = 0b010;
+        const SLTU: u32 = 0b011;
+        const XOR: u32 = 0b100;
+        const SRL_SRA: u32 = 0b101;
+        const OR: u32 = 0b110;
+        const AND: u32 = 0b111;
+
+        /* IType */
+        const I_TYPE_OP: u32 = 0b0010011;
+        const ADDI: u32 = 0b000;
+        const SLTI: u32 = 0b010;
+        const SLTIU: u32 = 0b011;
+        const XORI: u32 = 0b100;
+        const ORI: u32 = 0b110;
+        const ANDI: u32 = 0b111;
+        const SLLI: u32 = 0b001;
+        const SRLI_SRAI: u32 = 0b101;
 
         // TODO: Implement `RV32I` & `RV64I`
         match opcode {
@@ -93,7 +112,7 @@ impl Cpu {
                     BGE => (self.gpr[rs1] as i64) >= (self.gpr[rs2] as i64),
                     BLTU => self.gpr[rs1] < self.gpr[rs2],
                     BGEU => self.gpr[rs1] >= self.gpr[rs2],
-                    _ => false,
+                    _ => return Err(Exception::IllegalInstruction(inst as u64)),
                 };
                 let next_pc = if if_jump {
                     (self.pc as i64).wrapping_add(imm) as u64
@@ -133,13 +152,58 @@ impl Cpu {
                 };
                 Ok(self.pc + 4)
             }
-            ADDI_OP => {
-                let imm = ((inst >> 20) & 0xfff) as i32 as i64;
-                self.gpr[rd] = (self.gpr[rs1] as i64).wrapping_add(imm) as u64;
+            R_TYPE_OP => {
+                let result = match funct3 {
+                    ADD_SUB => {
+                        if funct7 == 0 {
+                            (self.gpr[rs1] as i64).wrapping_add(self.gpr[rs2] as i64)
+                        } else {
+                            (self.gpr[rs1] as i64).wrapping_sub(self.gpr[rs2] as i64)
+                        }
+                    }
+                    SLL => {
+                        let shamt = self.gpr[rs2] & 0x3f;
+                        (self.gpr[rs1]).wrapping_shl(shamt as u32) as i64
+                    }
+                    SRL_SRA => {
+                        let shamt = self.gpr[rs2] & 0x3f;
+                        if funct7 == 0 {
+                            (self.gpr[rs1]).wrapping_shr(shamt as u32) as i64
+                        } else {
+                            (self.gpr[rs1] as i64).wrapping_shr(shamt as u32)
+                        }
+                    }
+                    SLT => ((self.gpr[rs1] as i64) < (self.gpr[rs2] as i64)) as i64,
+                    SLTU => (self.gpr[rs1] < self.gpr[rs2]) as i64,
+                    XOR => (self.gpr[rs1] ^ self.gpr[rs2]) as i64,
+                    OR => (self.gpr[rs1] | self.gpr[rs2]) as i64,
+                    AND => (self.gpr[rs1] & self.gpr[rs2]) as i64,
+                    _ => return Err(Exception::IllegalInstruction(inst as u64)),
+                };
+                self.gpr[rd] = result as u64;
                 Ok(self.pc + 4)
             }
-            ADD_OP => {
-                self.gpr[rd] = (self.gpr[rs1] as i64).wrapping_add(self.gpr[rs2] as i64) as u64;
+            I_TYPE_OP => {
+                let imm = ((inst >> 20) & 0xfff) as i32 as i64;
+                let shamt = (imm & 0x3f) as u32;
+                let result = match funct3 {
+                    ADDI => (self.gpr[rs1] as i64).wrapping_add(imm),
+                    SLTI => ((self.gpr[rs1] as i64) < imm) as i64,
+                    SLTIU => (self.gpr[rs1] < imm as u64) as i64,
+                    XORI => (self.gpr[rs1] ^ imm as u64) as i64,
+                    ORI => (self.gpr[rs1] | imm as u64) as i64,
+                    ANDI => (self.gpr[rs1] & imm as u64) as i64,
+                    SLLI => (self.gpr[rs1]).wrapping_shl(shamt) as i64,
+                    SRLI_SRAI => {
+                        if funct7 == 0 {
+                            (self.gpr[rs1]).wrapping_shr(shamt) as i64
+                        } else {
+                            (self.gpr[rs1] as i64).wrapping_shr(shamt)
+                        }
+                    }
+                    _ => return Err(Exception::IllegalInstruction(inst as u64)),
+                };
+                self.gpr[rd] = result as u64;
                 Ok(self.pc + 4)
             }
             _ => Err(Exception::IllegalInstruction(inst as u64)),

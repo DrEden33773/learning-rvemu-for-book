@@ -1,3 +1,16 @@
 {
-  "cSpell.words": ["BGEU", "bitand", "BLTU", "funct"]
+  "cSpell.words": [
+    "ANDI",
+    "BGEU",
+    "bitand",
+    "BLTU",
+    "funct",
+    "SLLI",
+    "SLTI",
+    "SLTIU",
+    "SLTU",
+    "SRAI",
+    "SRLI",
+    "XORI"
+  ]
 }
