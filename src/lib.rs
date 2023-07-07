@@ -45,7 +45,11 @@ mod rvemu_test {
 
     #[test]
     fn add_addi() -> io::Result<()> {
-        let file = File::open("asm/add-addi.bin")?;
-        run_with(file)
+        run_with(File::open("asm/add-addi.bin")?)
+    }
+
+    #[test]
+    fn sub() -> io::Result<()> {
+        run_with(File::open("asm/sub.bin")?)
     }
 }
