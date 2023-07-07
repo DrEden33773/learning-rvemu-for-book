@@ -4,6 +4,7 @@ use std::io;
 use std::io::prelude::*;
 
 use rvemu_for_book::cpu::*;
+use rvemu_for_book::param::*;
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -23,16 +24,19 @@ fn main() -> io::Result<()> {
     // init cpu with code
     let mut cpu = Cpu::new(code);
 
-    while cpu.pc < cpu.dram.len() as u64 {
+    while cpu.pc < DRAM_END {
         // 1. Fetch
-        let inst = cpu.fetch();
+        let inst = cpu.fetch().unwrap();
 
         // 2. PC update
         cpu.pc += 4;
 
         // 3. decode
         // 4. execute
-        cpu.execute(inst)
+        let if_impl = cpu.execute(inst);
+        if !if_impl {
+            break;
+        }
     }
     cpu.dump_registers();
 

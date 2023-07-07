@@ -10,6 +10,12 @@ impl Dram {
         dram.splice(..code.len(), code.iter().cloned());
         Self { dram }
     }
+
+    pub fn fetch(&self, addr: u64) -> u8 {
+        let index = (addr - DRAM_BASE) as usize;
+        self.dram[index]
+    }
+
     pub fn load(&self, addr: u64, size: u64) -> Result<u64, ()> {
         if ![8, 16, 32, 64].contains(&size) {
             return Err(());
@@ -22,6 +28,7 @@ impl Dram {
         }
         Dram::store8n(self, addr, value, size as usize / 8)
     }
+
     fn load8n(&self, addr: u64, n: usize) -> Result<u64, ()> {
         if ![1, 2, 3, 4].contains(&n) {
             return Err(());

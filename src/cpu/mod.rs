@@ -1,3 +1,6 @@
+use crate::bus::*;
+use crate::param::*;
+
 /// RISC-V CPU
 ///
 /// - Little-endian
@@ -5,7 +8,7 @@
 pub struct Cpu {
     pub gpr: [u64; 32],
     pub pc: u64,
-    pub dram: Vec<u8>,
+    pub bus: Bus,
 }
 
 impl Cpu {
@@ -13,26 +16,27 @@ impl Cpu {
     pub fn new(code: Vec<u8>) -> Self {
         Self {
             gpr: [0; 32],
-            pc: 0,
-            dram: code,
+            pc: DRAM_BASE,
+            bus: Bus::new(code),
         }
     }
 
     /// Read 32bit instruction from a memory
     ///
     /// ![RISC-V base instruction formats](https://book.rvemu.app/img/1-1-2.png)
-    pub fn fetch(&self) -> u32 {
-        let curr_pc = self.pc as usize;
-        (self.dram[curr_pc] as u32)
-            | ((self.dram[curr_pc + 1] as u32) << 8)
-            | ((self.dram[curr_pc + 2] as u32) << 16)
-            | ((self.dram[curr_pc + 3] as u32) << 24)
+    pub fn fetch(&self) -> Result<u32, ()> {
+        let curr_pc = self.pc;
+        let curr_code = (self.bus.fetch(curr_pc)? as u32)
+            | ((self.bus.fetch(curr_pc + 1)? as u32) << 8)
+            | ((self.bus.fetch(curr_pc + 2)? as u32) << 16)
+            | ((self.bus.fetch(curr_pc + 3)? as u32) << 24);
+        Ok(curr_code)
     }
 
     /// Decode an instruction and execute it.
     ///
     /// ![RISC-V base instruction formats](https://book.rvemu.app/img/1-1-2.png)
-    pub fn execute(&mut self, inst: u32) {
+    pub fn execute(&mut self, inst: u32) -> bool {
         let opcode = inst & 0x7f;
         let rd = ((inst >> 7) & 0x1f) as usize;
         let rs1 = ((inst >> 15) & 0x1f) as usize;
@@ -48,12 +52,15 @@ impl Cpu {
             ADDI_OP => {
                 let imm = ((inst & 0xfff00000) as i32 as i64 >> 20) as u64;
                 self.gpr[rd] = self.gpr[rs1].wrapping_add(imm);
+                true
             }
             ADD_OP => {
                 self.gpr[rd] = self.gpr[rs1].wrapping_add(self.gpr[rs2]);
+                true
             }
             _ => {
-                dbg!("{opcode} is not implemented yet!");
+                // dbg!("{} is not implemented yet!", opcode);
+                false
             }
         }
     }
@@ -85,6 +92,6 @@ impl Cpu {
             ));
         }
         let output = values.join("\n");
-        println!("\n{}", output);
+        eprintln!("\n{}", output);
     }
 }
