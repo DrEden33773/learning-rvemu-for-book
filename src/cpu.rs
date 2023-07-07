@@ -189,7 +189,7 @@ impl Cpu {
             ));
         }
         let output = values.join("\n");
-        eprintln!("\n{}\n", output);
+        eprintln!("{}", output);
     }
 
     pub fn observe_reg(&self, r: &str) -> u64 {
