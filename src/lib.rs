@@ -5,10 +5,9 @@ pub mod dram;
 pub mod exception;
 pub mod param;
 
-use std::fs::{self, File};
+use std::fs::File;
 use std::io;
 use std::io::prelude::*;
-use std::path::Path;
 use std::process::Command;
 
 use cpu::*;
@@ -105,7 +104,7 @@ impl TestBenchTools {
         file_bin.read_to_end(&mut code)?;
         let mut cpu = Cpu::new(code);
 
-        for i in 0..n_clock {
+        for _i in 0..n_clock {
             let inst = match cpu.fetch() {
                 Ok(inst) => {
                     if inst == 0 {
