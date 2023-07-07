@@ -1,4 +1,4 @@
-# RVEMU (Rust RISC-V Emulator)
+# Learning & Building `rvemu` (Rust RISC-V Emulator)
 
 ## Brief
 
