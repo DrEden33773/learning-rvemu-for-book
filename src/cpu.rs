@@ -203,11 +203,11 @@ impl Cpu {
                         if i <= 31 {
                             return self.gpr[i];
                         }
-                        panic!("Invalid register {}", r);
+                        panic!("Invalid register {r}");
                     }
-                    panic!("Invalid register {}", r);
+                    panic!("Invalid register {r}");
                 }
-                _ => panic!("Invalid register {}", r),
+                _ => panic!("Invalid register {r}"),
             },
         }
     }
