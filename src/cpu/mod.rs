@@ -36,7 +36,8 @@ impl Cpu {
     /// Decode an instruction and execute it.
     ///
     /// ![RISC-V base instruction formats](https://book.rvemu.app/img/1-1-2.png)
-    pub fn execute(&mut self, inst: u32) -> bool {
+    pub fn execute(&mut self, inst: u32) -> Result<u64, ()> {
+        let curr_pc = self.pc;
         let opcode = inst & 0x7f;
         let rd = ((inst >> 7) & 0x1f) as usize;
         let rs1 = ((inst >> 15) & 0x1f) as usize;
@@ -52,15 +53,15 @@ impl Cpu {
             ADDI_OP => {
                 let imm = ((inst & 0xfff00000) as i32 as i64 >> 20) as u64;
                 self.gpr[rd] = self.gpr[rs1].wrapping_add(imm);
-                true
+                Ok(curr_pc + 4)
             }
             ADD_OP => {
                 self.gpr[rd] = self.gpr[rs1].wrapping_add(self.gpr[rs2]);
-                true
+                Ok(curr_pc + 4)
             }
             _ => {
                 // dbg!("{} is not implemented yet!", opcode);
-                false
+                Err(())
             }
         }
     }
