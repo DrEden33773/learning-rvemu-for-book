@@ -1,4 +1,4 @@
-use crate::dram::Dram;
+use crate::dram::*;
 use crate::param::*;
 
 pub struct Bus {
@@ -18,7 +18,6 @@ impl Bus {
             _ => Err(()),
         }
     }
-
     pub fn load(&mut self, addr: u64, size: u64) -> Result<u64, ()> {
         match addr {
             DRAM_BASE..=DRAM_END => self.dram.load(addr, size),

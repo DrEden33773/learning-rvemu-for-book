@@ -22,14 +22,14 @@ pub fn run_with(mut file: File) -> io::Result<()> {
         let inst = match cpu.fetch() {
             Ok(inst) => inst,
             Err(_e) => {
-                // eprintln!("{e}");
+                // eprintln!("{_e}");
                 break;
             }
         };
         match cpu.execute(inst) {
             Ok(new_pc) => cpu.pc = new_pc,
             Err(_e) => {
-                // eprintln!("{e}");
+                // eprintln!("{_e}");
                 break;
             }
         };

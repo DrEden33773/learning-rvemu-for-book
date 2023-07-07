@@ -15,7 +15,6 @@ impl Dram {
         let index = (addr - DRAM_BASE) as usize;
         self.dram[index]
     }
-
     pub fn load(&self, addr: u64, size: u64) -> Result<u64, ()> {
         if ![8, 16, 32, 64].contains(&size) {
             return Err(());
@@ -30,9 +29,6 @@ impl Dram {
     }
 
     fn load8n(&self, addr: u64, n: usize) -> Result<u64, ()> {
-        if ![1, 2, 3, 4].contains(&n) {
-            return Err(());
-        }
         let index = (addr - DRAM_BASE) as usize;
         let mut value = 0;
         for i in 0..n {
@@ -41,9 +37,6 @@ impl Dram {
         Ok(value)
     }
     fn store8n(&mut self, addr: u64, value: u64, n: usize) -> Result<(), ()> {
-        if ![1, 2, 3, 4].contains(&n) {
-            return Err(());
-        }
         let index = (addr - DRAM_BASE) as usize;
         for i in 0..n {
             self.dram[index + i] = ((value >> (8 * i)) & 0xff) as u8;
