@@ -1,7 +1,7 @@
-pub mod exception;
 pub mod bus;
 pub mod cpu;
 pub mod dram;
+pub mod exception;
 pub mod param;
 
 use std::fs::File;
@@ -22,15 +22,15 @@ pub fn run_with(mut file: File) -> io::Result<()> {
     while cpu.pc < DRAM_END {
         let inst = match cpu.fetch() {
             Ok(inst) => inst,
-            Err(_e) => {
-                // eprintln!("{_e}");
+            Err(e) => {
+                eprintln!("{e}");
                 break;
             }
         };
         match cpu.execute(inst) {
             Ok(new_pc) => cpu.pc = new_pc,
-            Err(_e) => {
-                // eprintln!("{_e}");
+            Err(e) => {
+                eprintln!("{e}");
                 break;
             }
         };
@@ -46,7 +46,7 @@ mod rvemu_test {
 
     #[test]
     fn test_add_addi() -> io::Result<()> {
-        let file = File::open("add-addi.bin")?;
+        let file = File::open("asm/add-addi.bin")?;
         run_with(file)
     }
 }

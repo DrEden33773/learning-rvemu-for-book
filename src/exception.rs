@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Copy, Clone)]
 pub enum Exception {
     InstructionAddrMisaligned(u64),
@@ -14,6 +16,30 @@ pub enum Exception {
     InstructionPageFault(u64),
     LoadPageFault(u64),
     StoreAMOPageFault(u64),
+}
+
+impl fmt::Display for Exception {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use Exception::*;
+        match self {
+            InstructionAddrMisaligned(addr) => {
+                write!(f, "InstructionAddrMisaligned: 0x{:016x}", addr)
+            }
+            InstructionAccessFault(addr) => write!(f, "InstructionAccessFault: 0x{:016x}", addr),
+            IllegalInstruction(inst) => write!(f, "IllegalInstruction: 0x{:016x}", inst),
+            Breakpoint(pc) => write!(f, "Breakpoint: 0x{:016x}", pc),
+            LoadAccessMisaligned(addr) => write!(f, "LoadAccessMisaligned: 0x{:016x}", addr),
+            LoadAccessFault(addr) => write!(f, "LoadAccessFault: 0x{:016x}", addr),
+            StoreAMOAddrMisaligned(addr) => write!(f, "StoreAMOAddrMisaligned: 0x{:016x}", addr),
+            StoreAMOAccessFault(addr) => write!(f, "StoreAMOAccessFault: 0x{:016x}", addr),
+            EnvironmentCallFromUMode(pc) => write!(f, "EnvironmentCallFromUMode: 0x{:016x}", pc),
+            EnvironmentCallFromSMode(pc) => write!(f, "EnvironmentCallFromSMode: 0x{:016x}", pc),
+            EnvironmentCallFromMMode(pc) => write!(f, "EnvironmentCallFromMMode: 0x{:016x}", pc),
+            InstructionPageFault(addr) => write!(f, "InstructionPageFault: 0x{:016x}", addr),
+            LoadPageFault(addr) => write!(f, "LoadPageFault: 0x{:016x}", addr),
+            StoreAMOPageFault(addr) => write!(f, "StoreAMOPageFault: 0x{:016x}", addr),
+        }
+    }
 }
 
 impl Exception {
@@ -59,14 +85,14 @@ impl Exception {
 
     pub fn is_fatal(self) -> bool {
         use Exception::*;
-        match self {
+        matches!(
+            self,
             InstructionAddrMisaligned(_)
-            | InstructionAccessFault(_)
-            | LoadAccessFault(_)
-            | StoreAMOAddrMisaligned(_)
-            | StoreAMOAccessFault(_)
-            | IllegalInstruction(_) => true,
-            _else => false,
-        }
+                | InstructionAccessFault(_)
+                | LoadAccessFault(_)
+                | StoreAMOAddrMisaligned(_)
+                | StoreAMOAccessFault(_)
+                | IllegalInstruction(_)
+        )
     }
 }

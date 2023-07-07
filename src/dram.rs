@@ -1,3 +1,4 @@
+use crate::exception::*;
 use crate::param::*;
 
 pub struct Dram {
@@ -15,20 +16,27 @@ impl Dram {
         let index = (addr - DRAM_BASE) as usize;
         self.dram[index]
     }
-    pub fn load(&self, addr: u64, size: u64) -> Result<u64, ()> {
+    pub fn load(&self, addr: u64, size: u64) -> Result<u64, Exception> {
         if ![8, 16, 32, 64].contains(&size) {
-            return Err(());
+            return Err(Exception::LoadAccessFault(addr));
         }
-        Dram::load8n(self, addr, size as usize / 8)
+        let n = size as usize / 8;
+        let index = (addr - DRAM_BASE) as usize;
+        let mut value: u64 = if (self.dram[index + n - 1] >> 7) & 1 == 1 {
+            0xffffffffffffffff
+        } else {
+            0
+        };
+        for i in 0..n {
+            value |= (self.dram[index + i] as u64) << (8 * i);
+        }
+        Ok(value)
     }
-    pub fn store(&mut self, addr: u64, size: u64, value: u64) -> Result<(), ()> {
+    pub fn load_u(&self, addr: u64, size: u64) -> Result<u64, Exception> {
         if ![8, 16, 32, 64].contains(&size) {
-            return Err(());
+            return Err(Exception::LoadAccessFault(addr));
         }
-        Dram::store8n(self, addr, value, size as usize / 8)
-    }
-
-    fn load8n(&self, addr: u64, n: usize) -> Result<u64, ()> {
+        let n = size as usize / 8;
         let index = (addr - DRAM_BASE) as usize;
         let mut value = 0;
         for i in 0..n {
@@ -36,7 +44,12 @@ impl Dram {
         }
         Ok(value)
     }
-    fn store8n(&mut self, addr: u64, value: u64, n: usize) -> Result<(), ()> {
+
+    pub fn store(&mut self, addr: u64, size: u64, value: u64) -> Result<(), Exception> {
+        if ![8, 16, 32, 64].contains(&size) {
+            return Err(Exception::StoreAMOAccessFault(addr));
+        }
+        let n = size as usize / 8;
         let index = (addr - DRAM_BASE) as usize;
         for i in 0..n {
             self.dram[index + i] = ((value >> (8 * i)) & 0xff) as u8;
