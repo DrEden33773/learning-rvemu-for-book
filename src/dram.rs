@@ -36,9 +36,9 @@ impl Dram {
         if ![8, 16, 32, 64].contains(&size) {
             return Err(Exception::LoadAccessFault(addr));
         }
-        let n = size as usize / 8;
+        let n = size as usize >> 3;
         let index = (addr - DRAM_BASE) as usize;
-        let mut value = 0;
+        let mut value: u64 = 0;
         for i in 0..n {
             value |= (self.dram[index + i] as u64) << (8 * i);
         }
@@ -49,7 +49,7 @@ impl Dram {
         if ![8, 16, 32, 64].contains(&size) {
             return Err(Exception::StoreAMOAccessFault(addr));
         }
-        let n = size as usize / 8;
+        let n = size as usize >> 3;
         let index = (addr - DRAM_BASE) as usize;
         for i in 0..n {
             self.dram[index + i] = ((value >> (8 * i)) & 0xff) as u8;
