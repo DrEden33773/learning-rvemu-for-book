@@ -217,7 +217,6 @@ impl Cpu {
             " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " s2 ", " s3 ", " s4 ", " s5 ",
             " s6 ", " s7 ", " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
         ];
-
         let mut values = Vec::new();
         for i in (0..32).step_by(4) {
             values.push(format!(
