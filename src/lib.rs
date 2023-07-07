@@ -13,13 +13,11 @@ use param::*;
 
 pub fn run_with(mut file: File) -> io::Result<()> {
     eprintln!();
+
     let mut code = vec![];
-
-    // read code into file
     file.read_to_end(&mut code)?;
-    // init cpu with code
-    let mut cpu = Cpu::new(code);
 
+    let mut cpu = Cpu::new(code);
     while cpu.pc < DRAM_END {
         let inst = match cpu.fetch() {
             Ok(inst) => inst,
@@ -36,8 +34,8 @@ pub fn run_with(mut file: File) -> io::Result<()> {
             }
         };
     }
-    cpu.dump_registers();
 
+    cpu.dump_registers();
     Ok(())
 }
 
@@ -46,7 +44,7 @@ mod rvemu_test {
     use super::*;
 
     #[test]
-    fn test_add_addi() -> io::Result<()> {
+    fn add_addi() -> io::Result<()> {
         let file = File::open("asm/add-addi.bin")?;
         run_with(file)
     }

@@ -45,54 +45,6 @@ impl Cpu {
         let funct3 = (inst >> 12) & 0x7;
         let funct7 = (inst >> 25) & 0x7f;
 
-        /* Branch */
-        const BRANCH_OP: u32 = 0b1100011;
-        const BEQ: u32 = 0b000;
-        const BNE: u32 = 0b001;
-        const BLT: u32 = 0b100;
-        const BGE: u32 = 0b101;
-        const BLTU: u32 = 0b110;
-        const BGEU: u32 = 0b111;
-
-        /* Load */
-        const LOAD_OP: u32 = 0b0000011;
-        const LB: u32 = 0b000;
-        const LH: u32 = 0b001;
-        const LW: u32 = 0b010;
-        const LD: u32 = 0b011;
-        const LBU: u32 = 0b100;
-        const LHU: u32 = 0b101;
-        const LWU: u32 = 0b110;
-
-        /* Store */
-        const STORE_OP: u32 = 0b0100011;
-        const SB: u32 = 0b000;
-        const SH: u32 = 0b001;
-        const SW: u32 = 0b010;
-        const SD: u32 = 0b011;
-
-        /* RType */
-        const R_TYPE_OP: u32 = 0b0110011;
-        const ADD_SUB: u32 = 0b000;
-        const SLL: u32 = 0b001;
-        const SLT: u32 = 0b010;
-        const SLTU: u32 = 0b011;
-        const XOR: u32 = 0b100;
-        const SRL_SRA: u32 = 0b101;
-        const OR: u32 = 0b110;
-        const AND: u32 = 0b111;
-
-        /* IType */
-        const I_TYPE_OP: u32 = 0b0010011;
-        const ADDI: u32 = 0b000;
-        const SLTI: u32 = 0b010;
-        const SLTIU: u32 = 0b011;
-        const XORI: u32 = 0b100;
-        const ORI: u32 = 0b110;
-        const ANDI: u32 = 0b111;
-        const SLLI: u32 = 0b001;
-        const SRLI_SRAI: u32 = 0b101;
-
         // TODO: Implement `RV32I` & `RV64I`
         match opcode {
             BRANCH_OP => {
