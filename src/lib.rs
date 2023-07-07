@@ -5,9 +5,10 @@ pub mod dram;
 pub mod exception;
 pub mod param;
 
-use std::fs::File;
+use std::fs::{self, File};
 use std::io;
 use std::io::prelude::*;
+use std::path::Path;
 use std::process::Command;
 
 use cpu::*;
@@ -41,9 +42,12 @@ pub fn run_with(mut file: File) -> io::Result<()> {
     Ok(())
 }
 
-pub struct TestBenchGenTools;
+pub struct TestBenchTools;
 
-impl TestBenchGenTools {
+impl TestBenchTools {
+    pub fn step_into_temp_folder() {
+        std::env::set_current_dir(std::env::temp_dir()).unwrap();
+    }
     pub fn generate_rv_assembly(c_src: &str) {
         let cc = "clang";
         let output = Command::new(cc)
@@ -86,19 +90,44 @@ impl TestBenchGenTools {
             .expect("Failed to generate rv binary");
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
-}
+    pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
+        eprintln!();
 
-#[cfg(test)]
-mod rvemu_test {
-    use super::*;
+        TestBenchTools::step_into_temp_folder();
+        let filename = test_name.to_owned() + ".s";
+        let mut file = File::create(&filename)?;
+        file.write_all(code.as_bytes())?;
+        TestBenchTools::generate_rv_obj(&filename);
+        TestBenchTools::generate_rv_binary(test_name);
 
-    #[test]
-    fn add_addi() -> io::Result<()> {
-        run_with(File::open("asm/add-addi.bin")?)
-    }
+        let mut file_bin = File::open(test_name.to_owned() + ".bin")?;
+        let mut code = vec![];
+        file_bin.read_to_end(&mut code)?;
+        let mut cpu = Cpu::new(code);
 
-    #[test]
-    fn sub() -> io::Result<()> {
-        run_with(File::open("asm/sub.bin")?)
+        for i in 0..n_clock {
+            let inst = match cpu.fetch() {
+                Ok(inst) => {
+                    if inst == 0 {
+                        eprintln!("End of program\n");
+                        return Ok(cpu);
+                    }
+                    inst
+                }
+                Err(e) => {
+                    eprintln!("{e}\n");
+                    break;
+                }
+            };
+            match cpu.execute(inst) {
+                Ok(new_pc) => cpu.pc = new_pc,
+                Err(e) => {
+                    eprintln!("{e}\n");
+                    break;
+                }
+            };
+        }
+
+        Ok(cpu)
     }
 }

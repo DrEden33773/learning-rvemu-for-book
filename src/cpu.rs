@@ -2,6 +2,12 @@ use crate::bus::*;
 use crate::exception::*;
 use crate::param::*;
 
+const ABI: [&str; 32] = [
+    "zero", " ra ", " sp ", " gp ", " tp ", " t0 ", " t1 ", " t2 ", " s0 ", " s1 ", " a0 ", " a1 ",
+    " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " s2 ", " s3 ", " s4 ", " s5 ", " s6 ", " s7 ",
+    " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
+];
+
 /// RISC-V CPU
 ///
 /// - Little-Endian
@@ -164,11 +170,6 @@ impl Cpu {
 
     /// Dump all registers onto the screen
     pub fn dump_registers(&self) {
-        const ABI: [&str; 32] = [
-            "zero", " ra ", " sp ", " gp ", " tp ", " t0 ", " t1 ", " t2 ", " s0 ", " s1 ", " a0 ",
-            " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " s2 ", " s3 ", " s4 ", " s5 ",
-            " s6 ", " s7 ", " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
-        ];
         let mut values = Vec::new();
         for i in (0..32).step_by(4) {
             values.push(format!(
@@ -189,5 +190,25 @@ impl Cpu {
         }
         let output = values.join("\n");
         eprintln!("\n{}\n", output);
+    }
+
+    pub fn observe_reg(&self, r: &str) -> u64 {
+        match ABI.iter().position(|&x| x == r) {
+            Some(i) => self.gpr[i],
+            None => match r {
+                "pc" => self.pc,
+                "fp" => self.observe_reg("s0"),
+                r if r.starts_with('x') => {
+                    if let Ok(i) = r[1..].parse::<usize>() {
+                        if i <= 31 {
+                            return self.gpr[i];
+                        }
+                        panic!("Invalid register {}", r);
+                    }
+                    panic!("Invalid register {}", r);
+                }
+                _ => panic!("Invalid register {}", r),
+            },
+        }
     }
 }
