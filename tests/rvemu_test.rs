@@ -16,7 +16,12 @@ fn run_rv_test<'a>(
     n_clock: usize,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    match TestBenchTools::rv_helper(code, test_name, n_clock) {
+    let final_test_name = if !test_name.starts_with("my_rvemu_") {
+        "my_rvemu_".to_owned() + test_name
+    } else {
+        test_name.to_owned()
+    };
+    match TestBenchTools::rv_helper(code, &final_test_name, n_clock) {
         Ok(cpu) => cmp_iter.for_each(|(reg, expect)| {
             assert_eq!(cpu.observe_reg(reg), expect);
         }),
@@ -35,7 +40,7 @@ fn test_add_addi() {
         add x31, x30, x29
     ";
     let cmp_iter = [("x31", 42)].into_iter();
-    run_rv_test_with_auto_clock(code, "rvemu_test_add_addi", cmp_iter);
+    run_rv_test_with_auto_clock(code, "test_add_addi", cmp_iter);
 }
 
 #[test]
@@ -46,5 +51,5 @@ fn test_sub() {
         sub x31, x30, x29
     ";
     let cmp_iter = [("x31", 32)].into_iter();
-    run_rv_test_with_auto_clock(code, "rvemu_test_sub", cmp_iter);
+    run_rv_test_with_auto_clock(code, "test_sub", cmp_iter);
 }
