@@ -1,5 +1,6 @@
 pub mod bus;
 pub mod cpu;
+pub mod csr;
 pub mod dram;
 pub mod exception;
 pub mod param;
@@ -7,6 +8,7 @@ pub mod param;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
+use std::process::Command;
 
 use cpu::*;
 use param::*;
@@ -37,6 +39,53 @@ pub fn run_with(mut file: File) -> io::Result<()> {
 
     cpu.dump_registers();
     Ok(())
+}
+
+pub struct TestBenchGenTools;
+
+impl TestBenchGenTools {
+    pub fn generate_rv_assembly(c_src: &str) {
+        let cc = "clang";
+        let output = Command::new(cc)
+            .arg("-S")
+            .arg(c_src)
+            .arg("-nostdlib")
+            .arg("-march=rv64g")
+            .arg("-mabi=lp64")
+            .arg("--target=riscv64")
+            .arg("-mno-relax")
+            .output()
+            .expect("Failed to generate rv assembly");
+        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    }
+    pub fn generate_rv_obj(assembly: &str) {
+        let cc = "clang";
+        let pieces: Vec<&str> = assembly.split('.').collect();
+        let output = Command::new(cc)
+            .arg("-Wl,-Ttext=0x0")
+            .arg("-nostdlib")
+            .arg("-march=rv64g")
+            .arg("-mabi=lp64")
+            .arg("--target=riscv64")
+            .arg("-mno-relax")
+            .arg("-o")
+            .arg(pieces[0])
+            .arg(assembly)
+            .output()
+            .expect("Failed to generate rv object");
+        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    }
+    pub fn generate_rv_binary(obj: &str) {
+        let objcopy = "llvm-objcopy";
+        let output = Command::new(objcopy)
+            .arg("-O")
+            .arg("binary")
+            .arg(obj)
+            .arg(obj.to_owned() + ".bin")
+            .output()
+            .expect("Failed to generate rv binary");
+        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    }
 }
 
 #[cfg(test)]
