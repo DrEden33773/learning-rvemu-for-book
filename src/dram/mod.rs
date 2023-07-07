@@ -45,18 +45,6 @@ impl Dram {
         }
     }
 
-    fn load8(&self, addr: u64) -> u64 {
-        Dram::load8n(self, addr, 1)
-    }
-    fn load16(&self, addr: u64) -> u64 {
-        Dram::load8n(self, addr, 2)
-    }
-    fn load32(&self, addr: u64) -> u64 {
-        Dram::load8n(self, addr, 4)
-    }
-    fn load64(&self, addr: u64) -> u64 {
-        Dram::load8n(self, addr, 8)
-    }
     fn load8n(&self, addr: u64, n: usize) -> u64 {
         let index = (addr - DRAM_BASE) as usize;
         let mut value = 0;
@@ -65,23 +53,43 @@ impl Dram {
         }
         value
     }
+    #[inline]
+    fn load8(&self, addr: u64) -> u64 {
+        Dram::load8n(self, addr, 1)
+    }
+    #[inline]
+    fn load16(&self, addr: u64) -> u64 {
+        Dram::load8n(self, addr, 2)
+    }
+    #[inline]
+    fn load32(&self, addr: u64) -> u64 {
+        Dram::load8n(self, addr, 4)
+    }
+    #[inline]
+    fn load64(&self, addr: u64) -> u64 {
+        Dram::load8n(self, addr, 8)
+    }
 
-    fn store8(&mut self, addr: u64, value: u64) {
-        Dram::store8n(self, addr, value, 1)
-    }
-    fn store16(&mut self, addr: u64, value: u64) {
-        Dram::store8n(self, addr, value, 2)
-    }
-    fn store32(&mut self, addr: u64, value: u64) {
-        Dram::store8n(self, addr, value, 4)
-    }
-    fn store64(&mut self, addr: u64, value: u64) {
-        Dram::store8n(self, addr, value, 8)
-    }
     fn store8n(&mut self, addr: u64, value: u64, n: usize) {
         let index = (addr - DRAM_BASE) as usize;
         for i in 0..n {
             self.dram[index + i] = ((value >> (8 * i)) & 0xff) as u8;
         }
+    }
+    #[inline]
+    fn store8(&mut self, addr: u64, value: u64) {
+        Dram::store8n(self, addr, value, 1)
+    }
+    #[inline]
+    fn store16(&mut self, addr: u64, value: u64) {
+        Dram::store8n(self, addr, value, 2)
+    }
+    #[inline]
+    fn store32(&mut self, addr: u64, value: u64) {
+        Dram::store8n(self, addr, value, 4)
+    }
+    #[inline]
+    fn store64(&mut self, addr: u64, value: u64) {
+        Dram::store8n(self, addr, value, 8)
     }
 }

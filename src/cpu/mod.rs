@@ -70,7 +70,7 @@ impl Cpu {
         let mut values = Vec::new();
         for i in (0..32).step_by(4) {
             values.push(format!(
-                "x{:02}({})={:>#18x} x{:02}({})={:>#18x} x{:02}({})={:>#18x} x{:02}({})={:>#18x}",
+                "x{:02}({})={:>#18x}  x{:02}({})={:>#18x}  x{:02}({})={:>#18x}  x{:02}({})={:>#18x}",
                 i,
                 abi[i],
                 self.reges[i],
