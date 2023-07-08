@@ -53,7 +53,9 @@ pub struct TestBenchTools;
 
 impl TestBenchTools {
     pub fn step_into_temp_folder() {
-        std::env::set_current_dir(std::env::temp_dir()).unwrap();
+        if std::env::current_dir().unwrap() != std::env::temp_dir() {
+            std::env::set_current_dir(std::env::temp_dir()).unwrap();
+        }
     }
     pub fn generate_rv_assembly(c_src: &str) {
         let cc = "clang";
@@ -98,9 +100,9 @@ impl TestBenchTools {
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
     pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
+        TestBenchTools::step_into_temp_folder();
         eprintln!();
 
-        TestBenchTools::step_into_temp_folder();
         let filename = test_name.to_owned() + ".s";
         let mut file = File::create(&filename)?;
         file.write_all(code.as_bytes())?;
