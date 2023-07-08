@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 use rvemu_for_book::{self, TestBenchTools};
 
 #[inline]
@@ -91,4 +93,80 @@ fn test_xor() {
     ";
     let cmp_iter = [("x31", 0b0110)].into_iter();
     run_from_asm_snippet_with_auto_clock(code, "test_xor", cmp_iter);
+}
+
+#[test]
+fn test_sb_lb() {
+    let code = "
+        addi x29, x0, 0x100
+        addi x30, x0, 0x10
+        sb x30, 0(x29)
+        lb x31, 0(x29)
+    ";
+    let cmp_iter = [("x31", 0x10)].into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw", cmp_iter);
+}
+
+#[test]
+fn test_sh_lh() {
+    let code = "
+        addi x29, x0, 0x100
+        addi x30, x0, 0x100
+        sh x30, 0(x29)
+        lh x31, 0(x29)
+    ";
+    let cmp_iter = [("x31", 0x100)].into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw", cmp_iter);
+}
+
+#[test]
+fn test_sw_lw() {
+    let code = "
+        addi x29, x0, 0x100
+        addi x30, x0, 0x200
+        sw x30, 0(x29)
+        lw x31, 0(x29)
+    ";
+    let cmp_iter = [("x31", 0x200)].into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw", cmp_iter);
+}
+
+#[test]
+fn test_sd_ld() {
+    let code = "
+        addi x29, x0, 0x100
+        addi x30, x0, 0x200
+        sd x30, 0(x29)
+        ld x31, 0(x29)
+    ";
+    let cmp_iter = [("x31", 0x200)].into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw", cmp_iter);
+}
+
+#[test]
+fn test_sw_lw_with_negative() {
+    let code = "
+        addi x29, x0, 0x100
+        addi x30, x0, -0x200
+        sw x30, 0(x29)
+        lw x31, 0(x29)
+    ";
+    let cmp_iter = [("x31", -0x200_i64 as u64)].into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw_with_negative", cmp_iter);
+}
+
+#[test]
+fn test_sw_lwu_with_negative() {
+    let code = "
+        addi x29, x0, 0x100
+        addi x30, x0, -0x200
+        sw x30, 0(x29)
+        lwu x31, 0(x29)
+    ";
+    let cmp_iter = [
+        ("x31", 0x200_u64.not().wrapping_add(1) as u32 as u64),
+        ("x31", 0x200_u32.not().wrapping_add(1) as u64),
+    ]
+    .into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw_with_negative", cmp_iter);
 }

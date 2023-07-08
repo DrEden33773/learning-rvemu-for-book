@@ -1,4 +1,5 @@
 use crate::bus::*;
+use crate::dram::SizeType;
 use crate::exception::*;
 use crate::param::*;
 
@@ -33,10 +34,10 @@ impl Cpu {
     /// ![RISC-V base instruction formats](https://book.rvemu.app/img/1-1-2.png)
     pub fn fetch(&self) -> Result<u32, Exception> {
         let curr_pc = self.pc;
-        let curr_code = (self.bus.fetch(curr_pc)? as u32)
-            | ((self.bus.fetch(curr_pc + 1)? as u32) << 8)
-            | ((self.bus.fetch(curr_pc + 2)? as u32) << 16)
-            | ((self.bus.fetch(curr_pc + 3)? as u32) << 24);
+        let curr_code = (self.bus.fetch_inst(curr_pc)? as u32)
+            | ((self.bus.fetch_inst(curr_pc + 1)? as u32) << 8)
+            | ((self.bus.fetch_inst(curr_pc + 2)? as u32) << 16)
+            | ((self.bus.fetch_inst(curr_pc + 3)? as u32) << 24);
         Ok(curr_code)
     }
 
@@ -83,13 +84,13 @@ impl Cpu {
                 let imm = ((inst & 0xFFF0_0000) as i32 >> 20) as i64;
                 let addr = (self.gpr[rs1] as i64).wrapping_add(imm) as u64;
                 let value = match funct3 {
-                    LB => self.bus.load(addr, 8)?,
-                    LH => self.bus.load(addr, 16)?,
-                    LW => self.bus.load(addr, 32)?,
-                    LD => self.bus.load(addr, 64)?,
-                    LBU => self.bus.load_u(addr, 8)?,
-                    LHU => self.bus.load_u(addr, 16)?,
-                    LWU => self.bus.load_u(addr, 32)?,
+                    LB => self.bus.load(addr, SizeType::Byte)?,
+                    LH => self.bus.load(addr, SizeType::Half)?,
+                    LW => self.bus.load(addr, SizeType::Word)?,
+                    LD => self.bus.load(addr, SizeType::DoubleWord)?,
+                    LBU => self.bus.load_u(addr, SizeType::Byte)?,
+                    LHU => self.bus.load_u(addr, SizeType::Half)?,
+                    LWU => self.bus.load_u(addr, SizeType::Word)?,
                     _ => return Err(Exception::IllegalInstruction(inst as u64)),
                 };
                 self.gpr[rd] = value;
@@ -102,10 +103,10 @@ impl Cpu {
                 let addr = (self.gpr[rs1] as i64).wrapping_add(imm) as u64;
                 let value = self.gpr[rs2];
                 match funct3 {
-                    SB => self.bus.store(addr, value, 8)?,
-                    SH => self.bus.store(addr, value, 16)?,
-                    SW => self.bus.store(addr, value, 32)?,
-                    SD => self.bus.store(addr, value, 64)?,
+                    SB => self.bus.store(addr, SizeType::Byte, value)?,
+                    SH => self.bus.store(addr, SizeType::Half, value)?,
+                    SW => self.bus.store(addr, SizeType::Word, value)?,
+                    SD => self.bus.store(addr, SizeType::DoubleWord, value)?,
                     _ => return Err(Exception::IllegalInstruction(inst as u64)),
                 };
                 Ok(self.pc + 4)
