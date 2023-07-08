@@ -53,7 +53,7 @@ pub struct TestBenchTools;
 
 impl TestBenchTools {
     pub fn step_into_temp_folder() {
-        let temp_dir = std::env::temp_dir().join("rvemu_tests");
+        let temp_dir = project_root::get_project_root().unwrap().join("temp");
         if std::env::current_dir().unwrap() != temp_dir {
             if !temp_dir.exists() {
                 std::fs::create_dir(&temp_dir).unwrap();
