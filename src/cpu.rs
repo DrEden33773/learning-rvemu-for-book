@@ -44,25 +44,25 @@ impl Cpu {
     ///
     /// ![RISC-V base instruction formats](https://book.rvemu.app/img/1-1-2.png)
     pub fn execute(&mut self, inst: u32) -> Result<u64, Exception> {
-        let opcode = inst & 0x7f;
-        let rd = ((inst >> 7) & 0x1f) as usize;
-        let rs1 = ((inst >> 15) & 0x1f) as usize;
-        let rs2 = ((inst >> 20) & 0x1f) as usize;
+        let opcode = inst & 0x7F;
+        let rd = ((inst >> 7) & 0x1F) as usize;
+        let rs1 = ((inst >> 15) & 0x1F) as usize;
+        let rs2 = ((inst >> 20) & 0x1F) as usize;
         let funct3 = (inst >> 12) & 0x7;
-        let funct7 = (inst >> 25) & 0x7f;
+        let funct7 = (inst >> 25) & 0x7F;
 
         // TODO: Implement `RV32I` & `RV64I`
         match opcode {
             BRANCH_OP => {
-                let _imm_12 = (inst >> 31) & 1;
-                let _imm_11 = (inst >> 7) & 1;
-                let _imm_10_5 = (inst >> 25) & 0x3f;
-                let _imm_4_1 = (inst >> 8) & 0xf;
+                let _imm_12 = (inst & 0x8000_0000) as i32 >> 31;
+                let _imm_11 = (inst & 0x80) as i32 >> 7;
+                let _imm_10_5 = (inst & 0x7E00_0000) as i32 >> 25;
+                let _imm_4_1 = (inst & 0xf00) as i32 >> 8;
                 let imm = ((_imm_12 << 12)
                     | (_imm_11 << 11)
                     | (_imm_10_5 << 5)
                     | (_imm_4_1 << 1)
-                    | _imm_11) as i32 as i64;
+                    | _imm_11) as i64;
                 let if_jump = match funct3 {
                     BEQ => self.gpr[rs1] == self.gpr[rs2],
                     BNE => self.gpr[rs1] != self.gpr[rs2],
@@ -80,8 +80,8 @@ impl Cpu {
                 Ok(next_pc)
             }
             LOAD_OP => {
-                let imm = ((inst >> 20) & 0xfff) as i32 as i64 as u64;
-                let addr = self.gpr[rs1].wrapping_add(imm);
+                let imm = ((inst & 0xFFF0_0000) as i32 >> 20) as i64;
+                let addr = (self.gpr[rs1] as i64).wrapping_add(imm) as u64;
                 let value = match funct3 {
                     LB => self.bus.load(addr, 8)?,
                     LH => self.bus.load(addr, 16)?,
@@ -96,10 +96,10 @@ impl Cpu {
                 Ok(self.pc + 4)
             }
             STORE_OP => {
-                let _imm_11_5 = (inst >> 25) & 0x7f;
-                let _imm_4_0 = (inst >> 7) & 0x1f;
-                let imm = ((_imm_11_5 << 5) | _imm_4_0) as u64;
-                let addr = self.gpr[rs1].wrapping_add(imm);
+                let _imm_11_5 = (inst & 0xFE00_0000) as i32 >> 25;
+                let _imm_4_0 = (inst & 0xF80) as i32 >> 7;
+                let imm = ((_imm_11_5 << 5) | _imm_4_0) as i64;
+                let addr = (self.gpr[rs1] as i64).wrapping_add(imm) as u64;
                 let value = self.gpr[rs2];
                 match funct3 {
                     SB => self.bus.store(addr, value, 8)?,
@@ -142,7 +142,7 @@ impl Cpu {
                 Ok(self.pc + 4)
             }
             I_TYPE_OP => {
-                let imm = ((inst >> 20) & 0xfff) as i32 as i64;
+                let imm = ((inst & 0xFFF0_0000) as i32 >> 20) as i64;
                 let shamt = (imm & 0x3f) as u32;
                 let result = match funct3 {
                     ADDI => (self.gpr[rs1] as i64).wrapping_add(imm),

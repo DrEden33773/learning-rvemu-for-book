@@ -42,6 +42,7 @@
     "STVAL",
     "STVEC",
     "Ttext",
+    "xfff",
     "XORI"
   ]
 }

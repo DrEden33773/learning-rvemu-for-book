@@ -52,7 +52,7 @@ pub const SLLI: u32 = 0b001;
 pub const SRLI_SRAI: u32 = 0b101;
 
 /* Machine-level CSRs. */
-pub const MHARTID: usize = 0xf14;
+pub const MHARTID: usize = 0xF14;
 /// Machine status register.
 pub const MSTATUS: usize = 0x300;
 /// Machine exception delefation register.

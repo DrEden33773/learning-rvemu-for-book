@@ -39,6 +39,17 @@ fn test_add_addi() {
 }
 
 #[test]
+fn test_add_with_neg() {
+    let code = "
+        addi x29, x0, -5
+        addi x30, x0, 37
+        add x31, x30, x29
+    ";
+    let cmp_iter = [("x31", 32)].into_iter();
+    run_from_asm_snippet_with_auto_clock(code, "test_add_with_neg", cmp_iter);
+}
+
+#[test]
 fn test_sub() {
     let code = "
         addi x29, x0, 5
