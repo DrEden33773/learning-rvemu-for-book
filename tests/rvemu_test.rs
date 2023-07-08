@@ -16,12 +16,8 @@ fn run_from_asm_snippet<'a>(
     n_clock: usize,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    let final_test_name = if !test_name.starts_with("my_rvemu_") {
-        "my_rvemu_".to_owned() + test_name
-    } else {
-        test_name.to_owned()
-    };
-    match TestBenchTools::rv_helper(code, &final_test_name, n_clock) {
+    TestBenchTools::step_into_temp_folder();
+    match TestBenchTools::rv_helper(code, test_name, n_clock) {
         Ok(cpu) => cmp_iter.for_each(|(reg, expect)| {
             assert_eq!(cpu.observe_reg(reg), expect);
         }),

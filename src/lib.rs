@@ -53,11 +53,16 @@ pub struct TestBenchTools;
 
 impl TestBenchTools {
     pub fn step_into_temp_folder() {
-        if std::env::current_dir().unwrap() != std::env::temp_dir() {
-            std::env::set_current_dir(std::env::temp_dir()).unwrap();
+        let temp_dir = std::env::temp_dir().join("rvemu_tests");
+        if std::env::current_dir().unwrap() != temp_dir {
+            if !temp_dir.exists() {
+                std::fs::create_dir(&temp_dir).unwrap();
+            }
+            std::env::set_current_dir(&temp_dir).unwrap();
         }
     }
     pub fn generate_rv_assembly(c_src: &str) {
+        TestBenchTools::step_into_temp_folder();
         let cc = "clang";
         let output = Command::new(cc)
             .arg("-S")
@@ -72,6 +77,7 @@ impl TestBenchTools {
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
     pub fn generate_rv_obj(assembly: &str) {
+        TestBenchTools::step_into_temp_folder();
         let cc = "clang";
         let pieces: Vec<&str> = assembly.split('.').collect();
         let output = Command::new(cc)
@@ -89,6 +95,7 @@ impl TestBenchTools {
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
     pub fn generate_rv_binary(obj: &str) {
+        TestBenchTools::step_into_temp_folder();
         let objcopy = "llvm-objcopy";
         let output = Command::new(objcopy)
             .arg("-O")
@@ -100,7 +107,6 @@ impl TestBenchTools {
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
     pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
-        TestBenchTools::step_into_temp_folder();
         eprintln!();
 
         let filename = test_name.to_owned() + ".s";
