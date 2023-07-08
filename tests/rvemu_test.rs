@@ -16,7 +16,6 @@ fn run_from_asm_snippet<'a>(
     n_clock: usize,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    TestBenchTools::step_into_temp_folder();
     match TestBenchTools::rv_helper(code, test_name, n_clock) {
         Ok(cpu) => cmp_iter.for_each(|(reg, expect)| {
             assert_eq!(cpu.observe_reg(reg), expect);
