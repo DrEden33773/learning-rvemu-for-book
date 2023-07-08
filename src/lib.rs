@@ -105,7 +105,6 @@ impl TestBenchTools {
     }
     pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
         eprintln!();
-        TestBenchTools::step_into_temp_folder();
 
         let filename = test_name.to_owned() + ".s";
         let mut file = File::create(&filename)?;

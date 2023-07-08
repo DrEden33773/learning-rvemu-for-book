@@ -7,6 +7,10 @@ use crate::param::*;
 ///
 /// `Main Memory` which contains `Instructions` and `Data`
 ///
+/// ## Seeking Unit
+///
+/// - `Byte`
+///
 /// ## Definition
 ///
 /// - 0 ..DRAM_BASE : `Instructions`
@@ -28,12 +32,12 @@ pub enum SizeType {
 
 impl SizeType {
     #[inline]
-    pub fn how_many_bits(&self) -> usize {
+    pub fn how_many_bytes(&self) -> usize {
         match self {
-            SizeType::Byte => 8,
-            SizeType::Half => 16,
-            SizeType::Word => 32,
-            SizeType::DoubleWord => 64,
+            SizeType::Byte => 1,
+            SizeType::Half => 2,
+            SizeType::Word => 4,
+            SizeType::DoubleWord => 8,
         }
     }
 }
@@ -51,28 +55,29 @@ impl Dram {
     }
 
     pub fn load(&self, addr: u64, size: SizeType) -> Result<u64, Exception> {
-        let n = size.how_many_bits() / 8;
+        let n_bytes = size.how_many_bytes();
         let index = addr as usize;
-        let mut value =
-            ((((self.dram[index + n - 1] as u64) << (8 * 7)) as i64) >> (8 * (8 - n))) as u64;
-        for i in 0..n {
+        let mut value = ((((self.dram[index + n_bytes - 1] as u64) << (8 * 7)) as i64)
+            >> (8 * (8 - n_bytes))) as u64;
+        for i in 0..n_bytes {
             value |= (self.dram[index + i] as u64) << (8 * i);
         }
         Ok(value)
     }
     pub fn load_u(&self, addr: u64, size: SizeType) -> Result<u64, Exception> {
-        let n = size.how_many_bits() / 8;
+        let n_bytes = size.how_many_bytes();
         let index = addr as usize;
         let mut value: u64 = 0;
-        for i in 0..n {
+        for i in 0..n_bytes {
             value |= (self.dram[index + i] as u64) << (8 * i);
         }
         Ok(value)
     }
+
     pub fn store(&mut self, addr: u64, size: SizeType, value: u64) -> Result<(), Exception> {
-        let n = size.how_many_bits() / 8;
+        let n_bytes = size.how_many_bytes();
         let index = addr as usize;
-        for i in 0..n {
+        for i in 0..n_bytes {
             self.dram[index + i] = ((value >> (8 * i)) & 0xff) as u8;
         }
         Ok(())

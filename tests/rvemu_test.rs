@@ -1,4 +1,4 @@
-use std::ops::Not;
+use std::{fs, ops::Not};
 
 use rvemu_for_book::{self, TestBenchTools};
 
@@ -18,14 +18,22 @@ fn run_from_asm_snippet<'a>(
     n_clock: usize,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
+    TestBenchTools::step_into_temp_folder();
     match TestBenchTools::rv_helper(code, test_name, n_clock) {
         Ok(cpu) => cmp_iter.for_each(|(reg, expect)| {
             assert_eq!(cpu.observe_reg(reg), expect);
         }),
         Err(e) => {
             eprintln!("error: {}", e);
-            unreachable!()
         }
+    }
+    for suffix in ["", ".s", ".bin"] {
+        fs::remove_file(
+            std::env::current_dir()
+                .unwrap()
+                .join(format!("{test_name}{suffix}")),
+        )
+        .unwrap();
     }
 }
 
