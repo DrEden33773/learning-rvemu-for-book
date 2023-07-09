@@ -2,6 +2,9 @@ use std::{fs, ops::Not};
 
 use rvemu_for_book::{self, TestBenchTools};
 
+// BUG: `code.lines().count()` only works if there is no `branch/jump/link` instruction.
+// TODO: Dynamically detect the existence of `branch/jump/link` instruction.
+// TODO: `n_clock = code.lines().count() if not [branch/jump/link] else DRAM_END`
 #[inline]
 fn run_from_asm_snippet_with_auto_clock<'a>(
     code: &str,

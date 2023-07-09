@@ -34,7 +34,10 @@ impl TestBenchTools {
             .arg("-mno-relax")
             .output()
             .expect("Failed to generate rv assembly");
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+        let raw_message = String::from_utf8_lossy(&output.stderr);
+        if raw_message.contains("error") {
+            eprintln!("{}", raw_message);
+        }
     }
     pub fn generate_rv_obj(assembly: &str) {
         let cc = "clang";
@@ -51,7 +54,10 @@ impl TestBenchTools {
             .arg(assembly)
             .output()
             .expect("Failed to generate rv object");
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+        let raw_message = String::from_utf8_lossy(&output.stderr);
+        if raw_message.contains("error") {
+            eprintln!("{}", raw_message);
+        }
     }
     pub fn generate_rv_binary(obj: &str) {
         let objcopy = "llvm-objcopy";
@@ -62,7 +68,10 @@ impl TestBenchTools {
             .arg(obj.to_owned() + ".bin")
             .output()
             .expect("Failed to generate rv binary");
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+        let raw_message = String::from_utf8_lossy(&output.stderr);
+        if raw_message.contains("error") {
+            eprintln!("{}", raw_message);
+        }
     }
     pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
         // eprintln!();
