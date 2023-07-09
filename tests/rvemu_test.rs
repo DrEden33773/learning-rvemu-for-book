@@ -171,10 +171,6 @@ fn test_sw_lwu_with_negative() {
         sw x30, 0(x29)
         lwu x31, 0(x29)
     ";
-    let cmp_iter = [
-        ("x31", 0x200_u64.not().wrapping_add(1) as u32 as u64),
-        ("x31", 0x200_u32.not().wrapping_add(1) as u64),
-    ]
-    .into_iter();
+    let cmp_iter = [("x31", 0x200_u32.not().wrapping_add(1) as u64)].into_iter();
     run_from_asm_snippet_with_auto_clock(code, "test_sw_lwu_with_negative", cmp_iter);
 }
