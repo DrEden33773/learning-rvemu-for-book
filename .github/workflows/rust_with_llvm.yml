@@ -1,31 +1,29 @@
-name: rust_with_llvm
+name: Rust with LLVM
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  install_llvm_toolchain:
-  
+  install-llvm:
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: KyleMayes/install-llvm-action@v1
-    - with: 
-        version: "10.0"
-    
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "16.0"
+
   build:
-
     runs-on: ubuntu-latest
-
+    needs: install-llvm
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v2
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
