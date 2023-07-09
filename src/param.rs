@@ -1,8 +1,9 @@
-/* DRAM Params */
+/* ---*---*---*---*--- DRAM Params ---*---*---*---*--- */
 pub const DRAM_BASE: u64 = 0x8000_0000;
 pub const DRAM_SIZE: u64 = 1024 * 1024 * 128; // 128 MB
 pub const DRAM_END: u64 = DRAM_SIZE + DRAM_BASE - 1;
 
+/* ---*---*---*---*--- RV32I Base ---*---*---*---*--- */
 /* Branch Inst */
 pub const BRANCH_OP: u32 = 0b1100011;
 pub const BEQ: u32 = 0b000;
@@ -11,7 +12,6 @@ pub const BLT: u32 = 0b100;
 pub const BGE: u32 = 0b101;
 pub const BLTU: u32 = 0b110;
 pub const BGEU: u32 = 0b111;
-
 /* Load Inst */
 pub const LOAD_OP: u32 = 0b0000011;
 pub const LB: u32 = 0b000;
@@ -21,14 +21,12 @@ pub const LD: u32 = 0b011;
 pub const LBU: u32 = 0b100;
 pub const LHU: u32 = 0b101;
 pub const LWU: u32 = 0b110;
-
 /* Store Inst */
 pub const STORE_OP: u32 = 0b0100011;
 pub const SB: u32 = 0b000;
 pub const SH: u32 = 0b001;
 pub const SW: u32 = 0b010;
 pub const SD: u32 = 0b011;
-
 /* RType Inst */
 pub const R_TYPE_OP: u32 = 0b0110011;
 pub const ADD_SUB: u32 = 0b000;
@@ -39,7 +37,6 @@ pub const XOR: u32 = 0b100;
 pub const SRL_SRA: u32 = 0b101;
 pub const OR: u32 = 0b110;
 pub const AND: u32 = 0b111;
-
 /* IType Inst */
 pub const I_TYPE_OP: u32 = 0b0010011;
 pub const ADDI: u32 = 0b000;
@@ -50,8 +47,31 @@ pub const ORI: u32 = 0b110;
 pub const ANDI: u32 = 0b111;
 pub const SLLI: u32 = 0b001;
 pub const SRLI_SRAI: u32 = 0b101;
+/* UType Inst */
+pub const LUI: u32 = 0b0110111;
+pub const AUIPC: u32 = 0b0010111;
+pub const JAL: u32 = 0b1101111;
+pub const JALR: u32 = 0b1100111;
+/* EType Inst */
+pub const E_TYPE_OP: u32 = 0b1110011;
+pub const ECALL: u32 = 0;
+pub const EBREAK: u32 = 1;
+/* Other Inst */
+pub const FENCE: u32 = 0b0001111;
 
-/* Machine-level CSRs. */
+/* ---*---*---*---*--- RV64I Base ---*---*---*---*--- */
+/* IW_Type Inst */
+pub const I_W_TYPE_OP: u32 = 0b0011011;
+pub const ADDIW: u32 = 0b000;
+pub const SLLIW: u32 = 0b001;
+pub const SRLIW_SRAIW: u32 = 0b101;
+/* RW_Type Inst */
+pub const R_W_TYPE_OP: u32 = 0b0111011;
+pub const ADDW_SUBW: u32 = 0b000;
+pub const SLLW: u32 = 0b001;
+pub const SRLW_SRAW: u32 = 0b101;
+
+/* ---*---*---*---*--- Machine-level CSRs ---*---*---*---*--- */
 pub const MHARTID: usize = 0xF14;
 /// Machine status register.
 pub const MSTATUS: usize = 0x300;
@@ -76,7 +96,7 @@ pub const MTVAL: usize = 0x343;
 /// Machine interrupt pending.
 pub const MIP: usize = 0x344;
 
-/* Supervisor-level CSRs. */
+/* ---*---*---*---*--- Supervisor-level CSRs ---*---*---*---*--- */
 /// Supervisor status register.
 pub const SSTATUS: usize = 0x100;
 /// Supervisor interrupt-enable register.
@@ -96,7 +116,7 @@ pub const SIP: usize = 0x144;
 /// Supervisor address translation and protection.
 pub const SATP: usize = 0x180;
 
-/* `mstatus` and `sstatus` field mask */
+/* ---*---*---*--- `mstatus` & `sstatus` field mask ---*---*---*--- */
 pub const MASK_SIE: u64 = 1 << 1;
 pub const MASK_MIE: u64 = 1 << 3;
 pub const MASK_SPIE: u64 = 1 << 5;
@@ -129,7 +149,7 @@ pub const MASK_SSTATUS: u64 = MASK_SIE
     | MASK_UXL
     | MASK_SD;
 
-/* `MIP` / `SIP` field mask */
+/* ---*---*---*--- `MIP` & `SIP` field mask ---*---*---*--- */
 pub const MASK_SSIP: u64 = 1 << 1;
 pub const MASK_MSIP: u64 = 1 << 3;
 pub const MASK_STIP: u64 = 1 << 5;

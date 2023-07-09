@@ -121,11 +121,11 @@ impl Cpu {
                         }
                     }
                     SLL => {
-                        let shamt = self.gpr[rs2] & 0x3f;
+                        let shamt = self.gpr[rs2] & 0x3F;
                         (self.gpr[rs1]).wrapping_shl(shamt as u32) as i64
                     }
                     SRL_SRA => {
-                        let shamt = self.gpr[rs2] & 0x3f;
+                        let shamt = self.gpr[rs2] & 0x3F;
                         if funct7 == 0 {
                             (self.gpr[rs1]).wrapping_shr(shamt as u32) as i64
                         } else {
@@ -142,9 +142,35 @@ impl Cpu {
                 self.gpr[rd] = result as u64;
                 Ok(self.pc + 4)
             }
+            R_W_TYPE_OP => {
+                let result = match funct3 {
+                    ADDW_SUBW => {
+                        if funct7 == 0 {
+                            (self.gpr[rs1] as i64).wrapping_add(self.gpr[rs2] as i64)
+                        } else {
+                            (self.gpr[rs1] as i64).wrapping_sub(self.gpr[rs2] as i64)
+                        }
+                    }
+                    SLLW => {
+                        let shamt = self.gpr[rs2] & 0x3F;
+                        ((self.gpr[rs1]) << shamt) as i64
+                    }
+                    SRLW_SRAW => {
+                        let shamt = self.gpr[rs2] & 0x3F;
+                        if funct7 == 0 {
+                            ((self.gpr[rs1]) >> shamt) as i64
+                        } else {
+                            self.gpr[rs1] as i64 >> shamt
+                        }
+                    }
+                    _ => return Err(Exception::IllegalInstruction(inst as u64)),
+                };
+                self.gpr[rd] = result as u64;
+                Ok(self.pc + 4)
+            }
             I_TYPE_OP => {
                 let imm = ((inst & 0xFFF0_0000) as i32 >> 20) as i64;
-                let shamt = (imm & 0x3f) as u32;
+                let shamt = (imm & 0x3F) as u32;
                 let result = match funct3 {
                     ADDI => (self.gpr[rs1] as i64).wrapping_add(imm),
                     SLTI => ((self.gpr[rs1] as i64) < imm) as i64,
@@ -154,6 +180,24 @@ impl Cpu {
                     ANDI => (self.gpr[rs1] & imm as u64) as i64,
                     SLLI => (self.gpr[rs1]).wrapping_shl(shamt) as i64,
                     SRLI_SRAI => {
+                        if funct7 == 0 {
+                            (self.gpr[rs1]).wrapping_shr(shamt) as i64
+                        } else {
+                            (self.gpr[rs1] as i64).wrapping_shr(shamt)
+                        }
+                    }
+                    _ => return Err(Exception::IllegalInstruction(inst as u64)),
+                };
+                self.gpr[rd] = result as u64;
+                Ok(self.pc + 4)
+            }
+            I_W_TYPE_OP => {
+                let imm = ((inst & 0xFFF0_0000) as i32 >> 20) as i64;
+                let shamt = (imm & 0x3F) as u32;
+                let result = match funct3 {
+                    ADDIW => (self.gpr[rs1] as i64).wrapping_add(imm),
+                    SLLIW => (self.gpr[rs1]).wrapping_shl(shamt) as i64,
+                    SRLIW_SRAIW => {
                         if funct7 == 0 {
                             (self.gpr[rs1]).wrapping_shr(shamt) as i64
                         } else {
