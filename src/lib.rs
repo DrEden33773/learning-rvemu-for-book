@@ -6,9 +6,8 @@ pub mod emulator;
 pub mod exception;
 pub mod param;
 
-use std::{fs::File, io::prelude::*, process::Command};
-
 use cpu::*;
+use std::{fs::File, io::prelude::*, process::Command};
 
 pub struct TestTools;
 
