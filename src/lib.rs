@@ -10,9 +10,9 @@ use std::{fs::File, io::prelude::*, process::Command};
 
 use cpu::*;
 
-pub struct TestBenchTools;
+pub struct TestTools;
 
-impl TestBenchTools {
+impl TestTools {
     pub fn step_into_temp_folder() {
         let temp_dir = project_root::get_project_root().unwrap().join("temp");
         if std::env::current_dir().unwrap() != temp_dir {
@@ -74,13 +74,11 @@ impl TestBenchTools {
         }
     }
     pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
-        // eprintln!();
-
         let filename = test_name.to_owned() + ".s";
         let mut file = File::create(&filename)?;
         file.write_all(code.as_bytes())?;
-        TestBenchTools::generate_rv_obj(&filename);
-        TestBenchTools::generate_rv_binary(test_name);
+        TestTools::generate_rv_obj(&filename);
+        TestTools::generate_rv_binary(test_name);
 
         let mut file_bin = File::open(test_name.to_owned() + ".bin")?;
         let mut code = vec![];
@@ -91,7 +89,6 @@ impl TestBenchTools {
             let inst = match cpu.fetch() {
                 Ok(inst) => {
                     if inst == 0 {
-                        // eprintln!("End of program\n");
                         return Ok(cpu);
                     }
                     inst

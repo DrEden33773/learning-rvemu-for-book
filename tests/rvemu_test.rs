@@ -1,6 +1,6 @@
 use std::{fs, ops::Not};
 
-use rvemu_for_book::{self, TestBenchTools};
+use rvemu_for_book::{self, TestTools};
 
 // BUG: `code.lines().count()` only works if there is no `branch/jump/link` instruction.
 // TODO: Dynamically detect the existence of `branch/jump/link` instruction.
@@ -21,8 +21,8 @@ fn run_from_asm_snippet<'a>(
     n_clock: usize,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    TestBenchTools::step_into_temp_folder();
-    match TestBenchTools::rv_helper(code, test_name, n_clock) {
+    TestTools::step_into_temp_folder();
+    match TestTools::rv_helper(code, test_name, n_clock) {
         Ok(cpu) => cmp_iter.for_each(|(reg, expect)| {
             assert_eq!(cpu.observe_reg(reg), expect);
         }),
@@ -162,7 +162,7 @@ fn test_sw_lw_with_negative() {
         sw x30, 0(x29)
         lw x31, 0(x29)
     ";
-    let cmp_iter = [("x31", -0x200_i64 as u64)].into_iter();
+    let cmp_iter = [("x31", 0x200_u64.not().wrapping_add(1))].into_iter();
     run_from_asm_snippet_with_auto_clock(code, "test_sw_lw_with_negative", cmp_iter);
 }
 
