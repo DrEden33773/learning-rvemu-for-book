@@ -13,7 +13,7 @@ fn run() -> io::Result<()> {
         return Ok(());
     }
     let file = File::open(&args[1])?;
-    rvemu_for_book::run_with(file)
+    rvemu_for_book::emulator::run_with(file)
 }
 
 fn main() -> io::Result<()> {

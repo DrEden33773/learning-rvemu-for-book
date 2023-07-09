@@ -2,52 +2,13 @@ pub mod bus;
 pub mod cpu;
 pub mod csr;
 pub mod dram;
+pub mod emulator;
 pub mod exception;
 pub mod param;
 
-use std::fs::File;
-use std::io;
-use std::io::prelude::*;
-use std::process::Command;
+use std::{fs::File, io::prelude::*, process::Command};
 
 use cpu::*;
-use param::*;
-
-pub fn run_with(mut file: File) -> io::Result<()> {
-    eprintln!();
-
-    let mut code = vec![];
-    file.read_to_end(&mut code)?;
-
-    let mut cpu = Cpu::new(code);
-
-    while cpu.pc < DRAM_END {
-        let inst = match cpu.fetch() {
-            Ok(inst) => {
-                if inst == 0 {
-                    eprintln!("End of program\n");
-                    break;
-                };
-                inst
-            }
-            Err(e) => {
-                eprintln!("{e}");
-                break;
-            }
-        };
-        match cpu.execute(inst) {
-            Ok(new_pc) => cpu.pc = new_pc,
-            Err(e) => {
-                eprintln!("{e}");
-                break;
-            }
-        };
-    }
-
-    cpu.dump_registers();
-
-    Ok(())
-}
 
 pub struct TestBenchTools;
 
@@ -104,7 +65,7 @@ impl TestBenchTools {
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
     pub fn rv_helper(code: &str, test_name: &str, n_clock: usize) -> Result<Cpu, std::io::Error> {
-        eprintln!();
+        // eprintln!();
 
         let filename = test_name.to_owned() + ".s";
         let mut file = File::create(&filename)?;
@@ -121,7 +82,7 @@ impl TestBenchTools {
             let inst = match cpu.fetch() {
                 Ok(inst) => {
                     if inst == 0 {
-                        eprintln!("End of program\n");
+                        // eprintln!("End of program\n");
                         return Ok(cpu);
                     }
                     inst
