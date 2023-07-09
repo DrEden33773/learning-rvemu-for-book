@@ -1,0 +1,31 @@
+name: rust_with_llvm
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  install_llvm_toolchain:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: KyleMayes/install-llvm-action@v1
+    - with: 
+        version: "10.0"
+    
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
