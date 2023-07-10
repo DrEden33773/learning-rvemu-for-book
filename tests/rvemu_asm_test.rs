@@ -1,42 +1,48 @@
-use std::{fs, ops::Not};
+use std::{ops::Not, sync::Arc};
 
-use rvemu_for_book::{self, TestTools};
+use rvemu_for_book::{self, param::*, utils::test_framework::TestFramework};
 
-// BUG: `code.lines().count()` only works if there is no `branch/jump/link` instruction.
-// TODO: Dynamically detect the existence of `branch/jump/link` instruction.
-// TODO: `n_clock = code.lines().count() if not [branch/jump/link] else DRAM_END`
 #[inline]
 fn run_from_asm_snippet_with_auto_clock<'a>(
     code: &str,
     test_name: &str,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    run_from_asm_snippet(code, test_name, code.lines().count(), cmp_iter)
+    let disable_auto_clock: Arc<[&str]> =
+        Arc::new(["beq", "bne", "blt", "bge", "bltu", "bgeu", "jal", "jalr"]);
+    let if_need_to_disable_auto_clock = || -> bool {
+        if test_name
+            .lines()
+            .any(|line| disable_auto_clock.iter().any(|&inst| line.contains(inst)))
+        {
+            true
+        } else {
+            code.lines()
+                .any(|line| disable_auto_clock.iter().any(|&inst| line.contains(inst)))
+        }
+    };
+    let n_clock = if if_need_to_disable_auto_clock() {
+        DRAM_END
+    } else {
+        code.lines().count() as u64
+    };
+    run_from_asm_snippet(code, test_name, n_clock, cmp_iter)
 }
 
 #[inline]
 fn run_from_asm_snippet<'a>(
     code: &str,
     test_name: &str,
-    n_clock: usize,
+    n_clock: u64,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
 ) {
-    TestTools::step_into_temp_folder();
-    match TestTools::rv_helper(code, test_name, n_clock) {
+    match TestFramework::test_from_asm(code, test_name, n_clock) {
         Ok(cpu) => cmp_iter.for_each(|(reg, expect)| {
             assert_eq!(cpu.observe_reg(reg), expect);
         }),
         Err(e) => {
             eprintln!("error: {}", e);
         }
-    }
-    for suffix in ["", ".s", ".bin"] {
-        fs::remove_file(
-            std::env::current_dir()
-                .unwrap()
-                .join(format!("{test_name}{suffix}")),
-        )
-        .unwrap();
     }
 }
 
