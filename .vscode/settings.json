@@ -7,6 +7,7 @@
     "BGEU",
     "bitand",
     "BLTU",
+    "CSRS",
     "delefation",
     "EBREAK",
     "ECALL",

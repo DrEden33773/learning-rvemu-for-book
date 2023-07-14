@@ -1,4 +1,5 @@
 use crate::bus::*;
+use crate::csr::*;
 use crate::dram::SizeType;
 use crate::exception::*;
 use crate::param::*;
@@ -17,15 +18,19 @@ pub struct Cpu {
     pub gpr: [u64; 32],
     pub pc: u64,
     pub bus: Bus,
+    pub csr: Csr,
 }
 
 impl Cpu {
     /// Create a new CPU with some existing codes
     pub fn new(code: Vec<u8>) -> Self {
+        let mut gpr = [0; 32];
+        gpr[2] = DRAM_END;
         Self {
-            gpr: [0; 32],
+            gpr,
             pc: DRAM_BASE,
             bus: Bus::new(code),
+            csr: Csr::default(),
         }
     }
 
