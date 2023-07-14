@@ -3,7 +3,7 @@ use std::{ops::Not, sync::Arc};
 use rvemu_for_book::{self, param::*, utils::test_framework::TestFramework};
 
 #[inline]
-fn run_from_asm_snippet_with_auto_clock<'a>(
+fn test_from_asm_snippet_with_auto_clock<'a>(
     code: &str,
     test_name: &str,
     cmp_iter: impl Iterator<Item = (&'a str, u64)>,
@@ -26,11 +26,11 @@ fn run_from_asm_snippet_with_auto_clock<'a>(
     } else {
         code.lines().count() as u64
     };
-    run_from_asm_snippet(code, test_name, n_clock, cmp_iter)
+    test_from_asm_snippet(code, test_name, n_clock, cmp_iter)
 }
 
 #[inline]
-fn run_from_asm_snippet<'a>(
+fn test_from_asm_snippet<'a>(
     code: &str,
     test_name: &str,
     n_clock: u64,
@@ -54,7 +54,7 @@ fn test_add_addi() {
         add x31, x30, x29
     ";
     let cmp_iter = [("x31", 42)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_add_addi", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_add_addi", cmp_iter);
 }
 
 #[test]
@@ -65,7 +65,7 @@ fn test_add_with_neg() {
         add x31, x30, x29
     ";
     let cmp_iter = [("x31", 32)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_add_with_neg", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_add_with_neg", cmp_iter);
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn test_sub() {
         sub x31, x30, x29
     ";
     let cmp_iter = [("x31", 32)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sub", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sub", cmp_iter);
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn test_and() {
         and x31, x30, x29
     ";
     let cmp_iter = [("x31", 0b1000)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_and", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_and", cmp_iter);
 }
 
 #[test]
@@ -98,7 +98,7 @@ fn test_or() {
         or x31, x30, x29
     ";
     let cmp_iter = [("x31", 0b1110)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_or", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_or", cmp_iter);
 }
 
 #[test]
@@ -109,7 +109,7 @@ fn test_xor() {
         xor x31, x30, x29
     ";
     let cmp_iter = [("x31", 0b0110)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_xor", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_xor", cmp_iter);
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn test_sb_lb() {
         lb x31, 0(x29)
     ";
     let cmp_iter = [("x31", 0x10)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sb_lb", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sb_lb", cmp_iter);
 }
 
 #[test]
@@ -133,7 +133,7 @@ fn test_sh_lh() {
         lh x31, 0(x29)
     ";
     let cmp_iter = [("x31", 0x100)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sh_lh", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sh_lh", cmp_iter);
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn test_sw_lw() {
         lw x31, 0(x29)
     ";
     let cmp_iter = [("x31", 0x200)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sw_lw", cmp_iter);
 }
 
 #[test]
@@ -157,7 +157,7 @@ fn test_sd_ld() {
         ld x31, 0(x29)
     ";
     let cmp_iter = [("x31", 0x200)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sd_ld", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sd_ld", cmp_iter);
 }
 
 #[test]
@@ -169,7 +169,7 @@ fn test_sw_lw_with_negative() {
         lw x31, 0(x29)
     ";
     let cmp_iter = [("x31", 0x200_u64.not().wrapping_add(1))].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sw_lw_with_negative", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sw_lw_with_negative", cmp_iter);
 }
 
 #[test]
@@ -181,5 +181,5 @@ fn test_sw_lwu_with_negative() {
         lwu x31, 0(x29)
     ";
     let cmp_iter = [("x31", 0x200_u32.not().wrapping_add(1) as u64)].into_iter();
-    run_from_asm_snippet_with_auto_clock(code, "test_sw_lwu_with_negative", cmp_iter);
+    test_from_asm_snippet_with_auto_clock(code, "test_sw_lwu_with_negative", cmp_iter);
 }
