@@ -25,7 +25,7 @@ impl TestFramework {
                     .unwrap()
                     .join(format!("{}{}", test_name, suffix)),
             )
-            .unwrap();
+            .unwrap_or_default();
         }
     }
     pub fn generate_rv_assembly(c_src: &str) {
@@ -117,7 +117,6 @@ impl TestFramework {
         }
 
         Self::clean_temp_dir(test_name);
-
         Ok(cpu)
     }
 }
