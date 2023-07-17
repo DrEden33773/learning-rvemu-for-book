@@ -14,7 +14,7 @@ jobs:
       - name: Check if image needs to be updated
         id: check-image
         run: |
-          IMAGE_NAME=learning-rvemu-for-book-env
+          IMAGE_NAME=$DOCKER_USERNAME/learning-rvemu-for-book-env
           IMAGE_TAG=latest
           DOCKER_REGISTRY=docker.io
           DOCKER_USERNAME=$DOCKER_USERNAME
