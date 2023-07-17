@@ -2,7 +2,7 @@
 
 ## GitHub Actions Improvements
 
-- [ ] Dynamic update docker image -> run on latest image
+- [x] Dynamic update docker image -> run on latest image
 
 您可以使用 Docker Hub 或其他容器注册表来存储您的 Docker 镜像，并使用 GitHub Actions Workflow 来检查您的 Docker 镜像是否需要更新。以下是一个可能的工作流程示例：
 
@@ -58,7 +58,7 @@ jobs:
 
 请注意，此示例假定您已经设置了 Docker 注册表和 GitHub Actions 的机密。您需要将 DOCKER_REGISTRY，DOCKER_USERNAME 和 DOCKER_PASSWORD 替换为您自己的值。
 
-- [ ] Upload [Dockerfile](./Dockerfile) to `Docker Hub` for previous improvement
+- [x] Upload [Dockerfile](./Dockerfile) to `Docker Hub` for previous improvement
 
 To set up a container registry to store your Docker images, you can use a service like Docker Hub, Google Container Registry, or Amazon Elastic Container Registry. Here are the general steps to set up Docker Hub:
 
