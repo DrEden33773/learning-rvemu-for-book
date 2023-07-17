@@ -11,7 +11,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build and test
+      - name: Check if image needs to be updated
+        id: check-image
         run: |
-          docker build -t my-rust-app .
-          docker run my-rust-app
+          IMAGE_NAME=learning-rvemu-for-book-env
+          IMAGE_TAG=latest
+          DOCKER_REGISTRY=docker.io
+          DOCKER_USERNAME=$DOCKER_USERNAME
+          DOCKER_PASSWORD=$DOCKER_PASSWORD
+          IMAGE_ID=$(docker inspect --format='{{.Id}}' $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG || true)
+          if [ -z "$IMAGE_ID" ]; then
+            echo "Image not found in registry"
+            docker pull $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+          fi
+          LOCAL_IMAGE_ID=$(docker inspect --format='{{.Id}}' $IMAGE_NAME:$IMAGE_TAG || true)
+          if [ "$IMAGE_ID" != "$LOCAL_IMAGE_ID" ]; then
+            echo "Image needs to be updated"
+            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $DOCKER_REGISTRY
+            docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+            docker push $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+          else
+            echo "Image is up to date"
+          fi
+      - name: Run image
+        if: steps.check-image.outcome == 'success'
+        run: |
+          IMAGE_NAME=learning-rvemu-for-book-env
+          IMAGE_TAG=latest
+          DOCKER_REGISTRY=docker.io
+          DOCKER_USERNAME=$DOCKER_USERNAME
+          DOCKER_PASSWORD=$DOCKER_PASSWORD
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $DOCKER_REGISTRY
+          docker run $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
