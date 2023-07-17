@@ -1,4 +1,4 @@
-name: Rust with LLVM via Docker
+name: Test On Docker
 
 on:
   push:
