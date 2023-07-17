@@ -17,8 +17,8 @@ jobs:
           IMAGE_NAME=learning-rvemu-for-book-env
           IMAGE_TAG=latest
           DOCKER_REGISTRY=docker.io
-          DOCKER_USERNAME=$DOCKER_USERNAME
-          DOCKER_PASSWORD=$DOCKER_PASSWORD
+          DOCKER_USERNAME=$THE_DOCKER_USERNAME
+          DOCKER_PASSWORD=$THE_DOCKER_PASSWORD
           IMAGE_ID=$(docker inspect --format='{{.Id}}' $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG || true)
           if [ -z "$IMAGE_ID" ]; then
             echo "Image not found in registry"
@@ -39,7 +39,7 @@ jobs:
           IMAGE_NAME=learning-rvemu-for-book-env
           IMAGE_TAG=latest
           DOCKER_REGISTRY=docker.io
-          DOCKER_USERNAME=$DOCKER_USERNAME
-          DOCKER_PASSWORD=$DOCKER_PASSWORD
+          DOCKER_USERNAME=$THE_DOCKER_USERNAME
+          DOCKER_PASSWORD=$THE_DOCKER_PASSWORD
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $DOCKER_REGISTRY
           docker run $DOCKER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
