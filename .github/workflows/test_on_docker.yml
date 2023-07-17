@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check if image needs to be updated
+      - name: Check if image needs to update
         id: check-image
         run: |
           IMAGE_NAME=learning-rvemu-for-book-env
