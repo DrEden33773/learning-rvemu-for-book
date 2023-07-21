@@ -1,27 +1,21 @@
+import os
 import subprocess
 
-# Vars
-USER_NAME = "edenwang33773"
-IMAGE_NAME = "learning-rvemu-for-book-env"
+if os.environ.get("GITHUB_ACTIONS") == "true":
+    print("`GitHub Actions Server` detected, skip `Building Docker image`...")
+    exit()
+
+user_name = "edenwang33773"
+image_name = "learning-rvemu-for-book-env"
 
 # Run docker login
-subprocess.run(["docker", "login"])
+subprocess.run(["docker", "login"], check=True)
 
 # Build the Docker image
-subprocess.run(["docker", "build", "-t", IMAGE_NAME, "."])
+subprocess.run(["docker", "build", "-t", image_name, "."], check=True)
 
 # Tag the Docker image
-subprocess.run(
-    [
-        "docker",
-        "tag",
-        IMAGE_NAME,
-        f"{USER_NAME}/{IMAGE_NAME}",
-    ]
-)
+subprocess.run(["docker", "tag", image_name, f"{user_name}/{image_name}"], check=True)
 
 # Push the Docker image
-subprocess.run(["docker", "push", f"{USER_NAME}/{IMAGE_NAME}"])
-
-# Clean
-subprocess.run(["docker", "builder", "prune", "-a", "-f"])
+subprocess.run(["docker", "push", f"{user_name}/{image_name}"], check=True)

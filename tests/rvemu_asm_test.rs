@@ -10,7 +10,7 @@ fn test_from_asm_snippet_with_auto_clock<'a>(
 ) {
     let disable_auto_clock: Arc<[&str]> =
         Arc::new(["beq", "bne", "blt", "bge", "bltu", "bgeu", "jal", "jalr"]);
-    let if_need_to_disable_auto_clock = || -> bool {
+    let should_disable_auto_clock = || -> bool {
         if test_name
             .lines()
             .any(|line| disable_auto_clock.iter().any(|&inst| line.contains(inst)))
@@ -21,7 +21,7 @@ fn test_from_asm_snippet_with_auto_clock<'a>(
                 .any(|line| disable_auto_clock.iter().any(|&inst| line.contains(inst)))
         }
     };
-    let n_clock = if if_need_to_disable_auto_clock() {
+    let n_clock = if should_disable_auto_clock() {
         DRAM_END
     } else {
         code.lines().count() as u64

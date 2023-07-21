@@ -32,6 +32,7 @@
     "MTVEC",
     "nostdlib",
     "objcopy",
+    "rustc",
     "SATP",
     "SCAUSE",
     "SEIP",
