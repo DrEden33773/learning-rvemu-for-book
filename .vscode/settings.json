@@ -11,6 +11,7 @@
     "delefation",
     "EBREAK",
     "ECALL",
+    "edenwang",
     "funct",
     "JALR",
     "mabi",
@@ -58,5 +59,10 @@
     "Ttext",
     "xfff",
     "XORI"
-  ]
+  ],
+  "python.analysis.typeCheckingMode": "basic",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.formatting.provider": "none"
 }
