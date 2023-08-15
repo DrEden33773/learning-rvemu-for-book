@@ -139,15 +139,15 @@ pub const MASK_SBE: u64 = 1 << 36;
 pub const MASK_MBE: u64 = 1 << 37;
 pub const MASK_SD: u64 = 1 << 63;
 pub const MASK_SSTATUS: u64 = MASK_SIE
-    | MASK_SPIE
-    | MASK_UBE
-    | MASK_SPP
-    | MASK_FS
-    | MASK_XS
-    | MASK_SUM
-    | MASK_MXR
-    | MASK_UXL
-    | MASK_SD;
+  | MASK_SPIE
+  | MASK_UBE
+  | MASK_SPP
+  | MASK_FS
+  | MASK_XS
+  | MASK_SUM
+  | MASK_MXR
+  | MASK_UXL
+  | MASK_SD;
 
 /* ---*---*---*--- `MIP` & `SIP` field mask ---*---*---*--- */
 pub const MASK_SSIP: u64 = 1 << 1;
