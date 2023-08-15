@@ -66,5 +66,6 @@
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "python.formatting.provider": "none",
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "rust-analyzer.check.command": "clippy"
 }
