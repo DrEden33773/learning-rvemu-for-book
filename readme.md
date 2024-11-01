@@ -10,7 +10,7 @@ With [rvemu-for-book](https://github.com/d0iasm/rvemu-for-book), [rvemu: RISC-V 
 
 1. An `little-endian`, `64-bit` RISC-V emulator
 2. Support `RV32I(basic)` & `RV64I(basic)` instruction set
-3. Won't support `pipeline-model`, as this is `no more than an emulator`
+3. Won't support `pipeline-model`, as this is `nothing more than an emulator`
 
 ## Requirements
 
